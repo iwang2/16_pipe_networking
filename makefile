@@ -19,6 +19,4 @@ clean:
 	rm *.o
 	rm server
 	rm client
-	rm cts
-	rm wkp
 	rm *~
