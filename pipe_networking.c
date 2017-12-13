@@ -12,23 +12,31 @@
   =========================*/
 int server_handshake(int *to_client) {
  	mkfifo("wkp", 0600);
-  	int wkp = open("wkp", O_RDONLY | O_CREAT | O_EXCL, 0600);
+  	int wkp = open("wkp", O_RDONLY | O_CREAT, 0600);
 	if(wkp == -1){
-	        printf("error creating Well Known Pipe: %s\n", strerror(errno));
-		exit(0);
+	  printf("[server] error opening Well Known Pipe: %s\n", strerror(errno));
+	  exit(0);
+	} else {
+	  printf("[server] wkp successfully opened!!\n");
 	}
-	char * client_stream;
-  	read(wkp, client_stream, sizeof(int *));
-  	printf("[server] received message through wkp: %d\n", atoi(client_stream));
+	char * client_stream = malloc(sizeof(char) * 100);
+  	read(wkp, client_stream, sizeof(client_stream));
+  	printf("[server] received message through wkp: %s\n", client_stream);
 	close(wkp);
 
-	mkfifo(client_stream, 0600);
-	*to_client = open(client_stream, O_WRONLY, 0600);
-	write(*to_client, &wkp, sizeof(int *));
-	printf("[server] sending message through %s: %d\n", client_stream, wkp);
-	close(*to_client);
-
-  	return *to_client;
+	//mkfifo(client_stream, 0600);
+	*to_client = open(client_stream, O_WRONLY);
+	if(*to_client == -1){
+	  printf("[server] error opening %s: %s\n", client_stream, strerror(errno));
+	  exit(0);
+	} else {
+	  printf("[server] successfully opened cts!!\n");
+	}
+	char * message = "hello!!";
+	write(*to_client, message, sizeof(message));
+	printf("[server] sending message through %s: %s\n", client_stream, message);
+	free(client_stream);
+  	return wkp;
 }
 
 
@@ -42,16 +50,30 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
-  	mkfifo("cts", 0600);
-  	int wkp = open("wkp", O_WRONLY);
-  	*to_server = open("cts", O_CREAT | O_RDWR | O_EXCL, 0600);
-  	write(wkp, to_server, sizeof(int *));
-	printf("sending message through wkp: %d\n", *to_server);
+        *to_server = open("wkp", O_WRONLY);
+	if(*to_server == -1){
+	  printf("[client] error opening wkp: %s\n", strerror(errno));
+	  exit(0);
+	} else {
+	  printf("[client] wkp successfully opened!!\n");
+	}
+	char * name = "cts";
+  	mkfifo(name, 0600);
+  	write(*to_server, name, sizeof(name));
+	printf("[client] sending message through wkp: %s\n", name);
+	close(*to_server);
 
-	char * server_stream;
-	read(*to_server, server_stream, sizeof(int *));
-	printf("received message from server: %d\n", atoi(server_stream));
+        int cts = open("cts", O_CREAT | O_RDONLY , 0600);
+	if(cts == -1) {
+	  printf("[client] error creating/opening cts: %s\n", strerror(errno));
+	} else {
+	  printf("[client] cts successfully created!!\n");
+	}
+	char * server_stream = malloc(sizeof(char) * 100);
+	read(cts, server_stream, sizeof(server_stream));
+	printf("[client] received message from server: %s\n", server_stream);
+	close(cts);
 
- 	return * to_server;
+	return *to_server;
 }
 
