@@ -6,14 +6,14 @@ int main() {
   int to_server;
   int from_server;
 
-  char * data = malloc(sizeof(char) * 100);
-  char * output = malloc(sizeof(;
+  char * input = malloc(sizeof(char) * 500);
+  char * output = malloc(sizeof(char) * 500);
+  to_server = client_handshake( &to_server );
+
   while(1){
-    fgets(data, sizeof(data), stdin);
-    printf("Original Input: %s\n", data);
-    to_server = client_handshake( &to_server );
-    
-    write(to_server, data, sizeof(data));
+    fgets(input, sizeof(input), stdin);
+    printf("Original Input: %s\n", input);
+    write(to_server, input, sizeof(input));
     read(from_server, output, sizeof(output));
     printf("Modified Output: %s\n", output);
   }

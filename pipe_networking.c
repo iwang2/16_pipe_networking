@@ -22,8 +22,8 @@ int server_handshake(int *to_client) {
 	char * client_stream = malloc(sizeof(char) * 100);
   	read(wkp, client_stream, sizeof(client_stream));
   	printf("[server] received message through wkp: %s\n", client_stream);
-	close(wkp);
-	remove("wkp");
+	//close(wkp);
+	//remove("wkp");
 
 	//mkfifo(client_stream, 0600);
 	*to_client = malloc(sizeof(int));
@@ -38,7 +38,7 @@ int server_handshake(int *to_client) {
 	write(*to_client, message, sizeof(message));
 	printf("[server] sending message through %s: %s\n", client_stream, message);
 	free(client_stream);
-  	return *to_client;
+  	return wkp;
 }
 
 
@@ -52,8 +52,9 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
-        int wkp = open("wkp", O_WRONLY);
-	if(wkp == -1){
+        *to_server = malloc(sizeof(int));
+        *to_server = open("wkp", O_WRONLY);
+	if(*to_server == -1){
 	  printf("[client] error opening wkp: %s\n", strerror(errno));
 	  exit(0);
 	} else {
@@ -61,23 +62,22 @@ int client_handshake(int *to_server) {
 	}
 	char * name = "cts";
   	mkfifo(name, 0600);
-  	write(wkp, name, sizeof(name));
+  	write(*to_server, name, sizeof(name));
 	printf("[client] sending message through wkp: %s\n", name);
-	close(wkp);
 
-        *to_server = malloc(sizeof(int));
-	*to_server = open("cts", O_CREAT | O_RDONLY , 0600);
-	if(*to_server == -1) {
+	int cts = open("cts", O_CREAT | O_RDONLY , 0600);
+	if(cts == -1) {
 	  printf("[client] error creating/opening cts: %s\n", strerror(errno));
 	} else {
 	  printf("[client] cts successfully created!!\n");
 	}
 	char * server_stream = malloc(sizeof(char) * 100);
-	read(*to_server, server_stream, sizeof(server_stream));
+	read(cts, server_stream, sizeof(server_stream));
 	printf("[client] received message from server: %s\n", server_stream);
+	free(server_stream);
 	//close(cts);
 	//remove("cts");
 
-	return *to_server;
+	return cts;
 }
 
