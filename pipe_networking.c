@@ -25,8 +25,7 @@ int server_handshake(int *to_client) {
 	//close(wkp);
 	//remove("wkp");
 
-	//mkfifo(client_stream, 0600);
-	*to_client = malloc(sizeof(int));
+	//*to_client = malloc(sizeof(int));
 	*to_client = open(client_stream, O_WRONLY);
 	if(*to_client == -1){
 	  printf("[server] error opening %s: %s\n", client_stream, strerror(errno));
@@ -52,7 +51,6 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
-        *to_server = malloc(sizeof(int));
         *to_server = open("wkp", O_WRONLY);
 	if(*to_server == -1){
 	  printf("[client] error opening wkp: %s\n", strerror(errno));
