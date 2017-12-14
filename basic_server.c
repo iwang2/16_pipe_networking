@@ -5,14 +5,14 @@ int main() {
   int from_client;
 
   from_client = server_handshake( &to_client );
-  printf("wkp: %d\n", from_client);
-  printf("cts: %d\n", to_client);
 
   char input[2000];
   int i;
   while(1){
-    memset(&output, 0, sizeof(output));
-    read(from_client, input, sizeof(input));
+    memset(&input, 0, sizeof(input));
+    if(read(from_client, input, sizeof(input)) == 0){
+      exit(0);
+    }
     printf("received input: %s\n", input);
 
     for(i = 0; input[i]; i++){
@@ -24,6 +24,6 @@ int main() {
     }
     
     printf("modified: %s\n", input);
-    write(to_client, input, strlen(input));
+    write(to_client, input, sizeof(input));
   }
 }
