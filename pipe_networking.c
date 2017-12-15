@@ -23,7 +23,7 @@ int server_handshake(int *to_client) {
   	read(wkp, client_stream, sizeof(client_stream));
   	printf("[server] received message through wkp: %s\n", client_stream);
 	//close(wkp);
-	//remove("wkp");
+	remove("wkp");
 
 	//*to_client = malloc(sizeof(int));
 	*to_client = open(client_stream, O_WRONLY);
@@ -74,7 +74,7 @@ int client_handshake(int *to_server) {
 	printf("[client] received message from server: %s\n", server_stream);
 	free(server_stream);
 	//close(cts);
-	//remove("cts");
+	remove("cts");
 
 	return cts;
 }

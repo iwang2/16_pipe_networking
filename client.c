@@ -4,19 +4,19 @@ int main() {
   int to_server;
   int from_server;
 
+  char buff[BUFFER_SIZE];
+
   from_server = client_handshake( &to_server );
   
   while(1){
-    printf("Type a message to the server:\n");
+    printf("\nType a message to the server:");
     
-    char input [sizeof(char) * 2000];
-    fgets(input, sizeof(input), stdin);
-    printf("Original Input: %s\n", input);
-    write(to_server, input, sizeof(input));
+    fgets(buff, sizeof(buff), stdin);
+    *strchr(buff, '\n') = 0;
+    printf("Original Input: %s\n", buff);
+    write(to_server, buff, sizeof(buff));
     
-    char output [strlen(input)];
-    memset(&output, 0, sizeof(output));
-    read(from_server, output, sizeof(output));
-    printf("Modified Output: %s\n", output);
+    read(from_server, buff, sizeof(buff));
+    printf("Modified Output: %s\n", buff);
   }
 }

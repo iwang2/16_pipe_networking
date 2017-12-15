@@ -6,24 +6,23 @@ int main() {
 
   from_client = server_handshake( &to_client );
 
-  char input[2000];
+  char buff[BUFFER_SIZE];
   int i;
   while(1){
-    memset(&input, 0, sizeof(input));
-    if(read(from_client, input, sizeof(input)) == 0){
+    if(read(from_client, buff, sizeof(buff)) == 0){
       exit(0);
     }
-    printf("received input: %s\n", input);
+    printf("received input: %s\n", buff);
 
-    for(i = 0; input[i]; i++){
+    for(i = 0; buff[i]; i++){
       if(i % 2 == 0){
-	input[i] = toupper(input[i]);
+	buff[i] = toupper(buff[i]);
       } else {
-	input[i] = tolower(input[i]);
+	buff[i] = tolower(buff[i]);
       }
     }
     
-    printf("modified: %s\n", input);
-    write(to_client, input, sizeof(input));
+    printf("modified: %s\n", buff);
+    write(to_client, buff, sizeof(buff));
   }
 }
